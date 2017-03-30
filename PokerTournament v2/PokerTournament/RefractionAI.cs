@@ -10,7 +10,7 @@ namespace PokerTournament
     class RefractionAI : Player
     {
         // enum to determine liklihood of getting a particular hand
-        enum PossibilityLevel { Have, Likely, Possible, Unlikely, Impossible }; // based on amount of cards to discard. if have a hand, discard 0
+        enum PossibilityLevel { Have, Likely, Possible, Unlikely, Poor, Impossible }; // based on amount of cards to discard. if have a hand, discard 0
 
         List<RefractionCard> refHand;
         List<int> rankOfTargetHands;
@@ -56,20 +56,30 @@ namespace PokerTournament
                 }
             }
 
-            // loop through target hand indices determine which is most likely
-            foreach (int targetRank in rankOfTargetHands)
+            // loop through target hand indices determine which is most likely 
+            if (rankOfTargetHands.Count > 1)
             {
-                // TODO: determine which rank is more likely
+                foreach (int targetRank in rankOfTargetHands) // resolve conflict
+                {
+                    // TODO: determine which rank is more likely -- NPAR
+                    // determine based on pot size/money total
+                    //Function needed
 
-                // assign target rank
-                // targetHandRank = targetRank;
+                    // assign target rank
+                    //targetHandRank = targetRank;
+                }
+            }
+            else
+            {
+                targetHandRank = rankOfTargetHands[0];
             }
 
             // get total amount of discards
             int discardingTotal = GetTotalDiscardsForHandRank(targetHandRank);
 
-            // TODO: Determine bet action
-
+            // TODO: Determine bet/bluff action -- KPAR, NPRO
+            // look at the action queue from Game
+            //function(int and stuff)
 
             // TODO: return appropriate PlayerAction object
             return new PlayerAction(Name, "Bet1", "bet", 0);
@@ -81,14 +91,14 @@ namespace PokerTournament
             Card highCard = null;
             int finalRank = Evaluate.RateAHand(hand, out highCard); // final hand rank
 
-            // TODO: determine bet action based on rank
-
+            // TODO: determine bet/bluff action based on rank  -- KPAR, NPRO
+            //function(int and stuff)
 
             // TODO: run modified evaluation and return PlayerAction object
             return new PlayerAction(Name, "Bet1", "bet", 0);
         }
 
-        public override PlayerAction Draw(Card[] hand)
+        public override PlayerAction Draw(Card[] hand) // TODO: JHAT
         {
             // TODO: Card values to be discarded for target hand
 
@@ -153,67 +163,88 @@ namespace PokerTournament
             }
         }
 
-        private PossibilityLevel CheckForRoyalFlush(int rank, List<RefractionCard> hand)
+        private PossibilityLevel CheckForRoyalFlush(int rank, List<RefractionCard> hand)//Noah
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForStraightFlush(int rank, List<RefractionCard> hand)
+        private PossibilityLevel CheckForStraightFlush(int rank, List<RefractionCard> hand)//Noah
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForFourOfAKind(int rank, List<RefractionCard> hand)
+        private PossibilityLevel CheckForFourOfAKind(int rank, List<RefractionCard> hand)//Kenny
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForFullHouse(int rank, List<RefractionCard> hand)
+        private PossibilityLevel CheckForFullHouse(int rank, List<RefractionCard> hand)//Kenny
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForFlush(int rank, List<RefractionCard> hand)
+        private PossibilityLevel CheckForFlush(int rank, List<RefractionCard> hand)//Noah
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForStraight(int rank, List<RefractionCard> hand)
+        private PossibilityLevel CheckForStraight(int rank, List<RefractionCard> hand)//Noah
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForThreeOfAKind(int rank, List<RefractionCard> hand)
+        private PossibilityLevel CheckForThreeOfAKind(int rank, List<RefractionCard> hand)//Kenny
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForTwoPair(int rank, List<RefractionCard> hand)
+        private PossibilityLevel CheckForTwoPair(int rank, List<RefractionCard> hand)//Kenny
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // return possible so this hand is only targeted if nothing better available 
         }
 
-        private PossibilityLevel CheckForPair(int rank, List<RefractionCard> hand)
+        private PossibilityLevel CheckForPair(int rank, List<RefractionCard> hand)//Kenny
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // return possible so this hand is only targeted if nothing better available 
+        }
+
+        private PossibilityLevel GetPossilityForDiscards(int numDiscarded)
+        {
+            switch (numDiscarded)
+            {
+                case 0:
+                    return PossibilityLevel.Have;
+                case 1:
+                    return PossibilityLevel.Likely;
+                case 2:
+                    return PossibilityLevel.Possible;
+                case 3:
+                    return PossibilityLevel.Unlikely;
+                case 4:
+                    return PossibilityLevel.Poor;
+                case 5:
+                    return PossibilityLevel.Impossible;
+                default:
+                    return PossibilityLevel.Impossible;
+            }
         }
 
         class RefractionCard // inner class to add property to each card to determine what hands would require it to be discarded
