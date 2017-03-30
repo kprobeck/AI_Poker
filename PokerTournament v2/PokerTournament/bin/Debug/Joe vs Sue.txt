@@ -1,0 +1,43 @@
+Starting round 1
+Ante for this round: 10
+Betting round 1:
+Player: Sue Action Phase: Bet1 Action Name: check Amount: 0
+ 
+Player: Joe Action Phase: Bet1 Action Name: bet Amount: 20
+ 
+Player: Sue Action Phase: Bet1 Action Name: call Amount: 0
+ 
+Player: Joe Action Phase: Bet1 Action Name: call Amount: 0
+ 
+After Bet1, pot is 60
+ 
+Name: Sue
+Hand Rank: 2 
+Six of Spades Six of Diamonds Queen of Spades King of Hearts Ace of Spades 
+
+ 
+Name: Joe
+Hand Rank: 2 
+Two of Spades Nine of Clubs Ten of Spades Ten of Hearts Queen of Hearts 
+
+ 
+Betting round 2:
+Player: Sue Action Phase: Bet2 Action Name: bet Amount: 20
+ 
+Player: Joe Action Phase: Bet2 Action Name: raise Amount: 20
+ 
+Player: Sue Action Phase: Bet2 Action Name: call Amount: 0
+ 
+Player: Joe Action Phase: Bet2 Action Name: call Amount: 0
+ 
+After Bet2, pot is 120
+ 
+Joe has a better hand and wins 120
+
+After round 1, player status: 
+ Name: Joe Dealer: True Money: 1050
+ Name: Sue Dealer: False Money: 950
+ 
+Starting round 2
+Ante for this round: 10
+Betting round 1:
