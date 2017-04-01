@@ -172,15 +172,91 @@ namespace PokerTournament
         private PossibilityLevel CheckForRoyalFlush(int rank, List<RefractionCard> hand)//Rank 10 //Noah
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
-            // refractionCard.DiscardFromHandWithRank(rank);
-            return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
+            List<RefractionCard> bestSet = new List<RefractionCard>();
+            List<RefractionCard> currentSet = new List<RefractionCard>();
+            string[] suits = { "Hearts", "Clubs", "Diamonds", "Spades" };
+            foreach (string suit in suits)
+            {
+                if (bestSet.Count >= 3) { break; }//no other set can do better then three
+                
+                if (hand[0].CardValue.Value == 10 && hand[0].CardValue.Suit == suit)//10
+                {
+                    currentSet.Add(hand[0]);
+                }
+                if (hand[1].CardValue.Value == 11 && hand[1].CardValue.Suit == suit)//Jack
+                {
+                    currentSet.Add(hand[1]);
+                }
+                if (hand[2].CardValue.Value == 12 && hand[2].CardValue.Suit == suit)//Queen
+                {
+                    currentSet.Add(hand[2]);
+                }
+                if (hand[3].CardValue.Value == 13 && hand[3].CardValue.Suit == suit)//King
+                {
+                    currentSet.Add(hand[3]);
+                }
+                if (hand[4].CardValue.Value == 14 && hand[4].CardValue.Suit == suit)//Ace
+                {
+                    currentSet.Add(hand[4]);
+                }
+
+                if (currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
+                {
+                    bestSet = currentSet;
+                }
+                currentSet.Clear();
+            }
+            foreach (RefractionCard c in hand)//assigns what card would be discarded
+            {
+                if (!bestSet.Contains(c))//best hand does not contain card
+                {
+                    c.DiscardFromHandWithRank(10);
+                }
+            }
+
+            return GetPossilityForDiscards(5 - bestSet.Count); // TODO: based on amount of cards discarded return 
         }
 
         private PossibilityLevel CheckForStraightFlush(int rank, List<RefractionCard> hand)//Rank 9 //Noah
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
-            return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
+            List<RefractionCard> bestSet = new List<RefractionCard>();
+            List<RefractionCard> currentSet = new List<RefractionCard>();
+            for (int i = 4; i >= 0; i--)
+            {//goes through all 5 cards
+                if (bestSet.Count >= i + 1) { break; }//no other set can do better than the one that is already the best
+                currentSet.Add(hand[i]);//start off the set
+                for (int y = i - 1; y >= 0; y--)//checks each card
+                {
+                    if (hand[y].CardValue.Value > currentSet[0].CardValue.Value - 5 && hand[y].CardValue.Suit == currentSet[0].CardValue.Suit)//check if card is within range and the same suit
+                    {
+                        currentSet.Add(hand[i]);
+                    }
+                }
+                if (currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
+                {
+                    bestSet = currentSet;
+                }
+                else if (currentSet.Count == bestSet.Count)//there are the same amount of cards in this list, compare highest card
+                {
+                    if (currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)
+                    {
+                        bestSet = currentSet;
+                    }
+                }
+                currentSet.Clear();
+            }
+
+            foreach (RefractionCard c in hand)//assigns what card would be discarded
+            {
+                if (!bestSet.Contains(c))//best hand does not contain card
+                {
+                    c.DiscardFromHandWithRank(9);
+                }
+            }
+
+            return GetPossilityForDiscards(5 - bestSet.Count); // TODO: based on amount of cards discarded return 
         }
 
         private PossibilityLevel CheckForFourOfAKind(int rank, List<RefractionCard> hand)//Rank 8 //Kenny
@@ -201,7 +277,41 @@ namespace PokerTournament
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
-            return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
+            List<RefractionCard> bestSet = new List<RefractionCard>();
+            List<RefractionCard> currentSet = new List<RefractionCard>();
+            string[] suits = { "Hearts", "Clubs", "Diamonds", "Spades" };
+            foreach (string suit in suits)
+            {
+                if (bestSet.Count >= 3) { break; }//no other set can do better then three
+                for (int i = 4; i >= 0; i--)//checks each card in hand
+                {
+                    if (hand[i].CardValue.Suit == suit)//checks to see if the current card is the correct suit
+                    {
+                        currentSet.Add(hand[i]);
+                    }
+                }
+                if (currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
+                {
+                    bestSet = currentSet;
+                }
+                else if(currentSet.Count == bestSet.Count)//there are the same amount of cards in this list, compare highest card
+                {
+                    if(currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)
+                    {
+                        bestSet = currentSet;
+                    }
+                }
+                currentSet.Clear();
+            }
+            foreach (RefractionCard c in hand)//assigns what card would be discarded
+            {
+                if (!bestSet.Contains(c))//best hand does not contain card
+                {
+                    c.DiscardFromHandWithRank(6);
+                }
+            }
+
+            return GetPossilityForDiscards(5 - bestSet.Count); // TODO: based on amount of cards discarded return 
         }
 
         private PossibilityLevel CheckForStraight(int rank, List<RefractionCard> hand)//Rank 5 //Noah
@@ -210,22 +320,21 @@ namespace PokerTournament
             // refractionCard.DiscardFromHandWithRank(rank);
             List<RefractionCard> bestSet = new List<RefractionCard>();
             List<RefractionCard> currentSet = new List<RefractionCard>();
-            currentSet.Add(hand[4]);//the first card (best card) is the best to keep no matter what
-            for (int i = 3; i >= 0; i--)//checks each card
-            {
-                if(hand[i].CardValue.Value == hand[i+1].CardValue.Value - 1)//checks to see if the next card is the correct order
+            for (int i = 4; i >= 0; i--) {//goes through all 5 cards
+                if (bestSet.Count >= i+1) { break; }//no other set can do better than the one that is already the best
+                currentSet.Add(hand[i]);//start off the set
+                for (int y = i-1; y >= 0; y--)//checks each card
                 {
-                    currentSet.Add(hand[i]);
-                    i--;
-                }
-                else //the current card is not sequencely correct
-                {
-                    if(currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
+                    if (hand[y].CardValue.Value > currentSet[0].CardValue.Value - 5 && hand[y].CardValue.Value != hand[y+1].CardValue.Value)//check if card is within range and not a duplicate value
                     {
-                        bestSet = currentSet;
+                        currentSet.Add(hand[i]);
                     }
-                    currentSet.Clear();
                 }
+                if (currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
+                {
+                    bestSet = currentSet;
+                }
+                currentSet.Clear();
             }
 
             foreach(RefractionCard c in hand)//assigns what card would be discarded
