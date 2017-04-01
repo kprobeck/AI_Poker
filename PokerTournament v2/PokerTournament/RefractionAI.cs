@@ -281,6 +281,46 @@ namespace PokerTournament
             }
         }
 
+        private static void SortHand(List<RefractionCard> hand)
+        {
+            // simple bubble sort - with 5 cards almost as fast as other
+            // types of sorts
+            int n = hand.Count;
+            Boolean swapped = false;
+            do
+            {
+                swapped = false; // reset flag for next iteration
+                for (int i = 1; i < n; i++)
+                {
+                    if (hand[i - 1].CardValue.Value > hand[i].CardValue.Value) // do we swap?
+                    {
+                        RefractionCard temp = hand[i - 1];
+                        hand[i - 1] = hand[i];
+                        hand[i] = temp;
+                        swapped = true;
+                    }
+                }
+                n--; // largest value is at the end of the array
+            } while (swapped == true);
+        }
+
+        // helper method - see if hand is all the same suit
+        // could mean a Flush, Straight Flush, or Royal Flush
+        private static Boolean SameSuit(List<RefractionCard> hand)
+        {
+            // are all cards from the same suit
+            for (int i = 1; i < hand.Count; i++)
+            {
+                if (hand[i].CardValue.Suit != hand[0].CardValue.Suit)
+                {
+                    return false;
+                }
+            }
+
+            // finished loop - all cards are the same suit
+            return true;
+        }
+
         class RefractionCard // inner class to add property to each card to determine what hands would require it to be discarded
         {
             Card cardValue;
