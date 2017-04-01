@@ -25,6 +25,9 @@ namespace PokerTournament
 
         public override PlayerAction BettingRound1(List<PlayerAction> actions, Card[] hand)
         {
+            //order hand first
+            Evaluate.SortHand(hand);
+
             // convert hand to inner class
             refHand = ConvertHandToRefCards(hand);
 
@@ -87,6 +90,9 @@ namespace PokerTournament
 
         public override PlayerAction BettingRound2(List<PlayerAction> actions, Card[] hand)
         {
+            //order hand first
+            Evaluate.SortHand(hand);
+
             // get rank of current hand and highest card
             Card highCard = null;
             int finalRank = Evaluate.RateAHand(hand, out highCard); // final hand rank
@@ -163,63 +169,91 @@ namespace PokerTournament
             }
         }
 
-        private PossibilityLevel CheckForRoyalFlush(int rank, List<RefractionCard> hand)//Noah
+        private PossibilityLevel CheckForRoyalFlush(int rank, List<RefractionCard> hand)//Rank 10 //Noah
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForStraightFlush(int rank, List<RefractionCard> hand)//Noah
+        private PossibilityLevel CheckForStraightFlush(int rank, List<RefractionCard> hand)//Rank 9 //Noah
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForFourOfAKind(int rank, List<RefractionCard> hand)//Kenny
+        private PossibilityLevel CheckForFourOfAKind(int rank, List<RefractionCard> hand)//Rank 8 //Kenny
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForFullHouse(int rank, List<RefractionCard> hand)//Kenny
+        private PossibilityLevel CheckForFullHouse(int rank, List<RefractionCard> hand)//Rank 7 //Kenny
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForFlush(int rank, List<RefractionCard> hand)//Noah
+        private PossibilityLevel CheckForFlush(int rank, List<RefractionCard> hand)//Rank 6 //Noah
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForStraight(int rank, List<RefractionCard> hand)//Noah
+        private PossibilityLevel CheckForStraight(int rank, List<RefractionCard> hand)//Rank 5 //Noah
+        {
+            // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
+            // refractionCard.DiscardFromHandWithRank(rank);
+            List<RefractionCard> bestSet = new List<RefractionCard>();
+            List<RefractionCard> currentSet = new List<RefractionCard>();
+            currentSet.Add(hand[4]);//the first card (best card) is the best to keep no matter what
+            for (int i = 3; i >= 0; i--)//checks each card
+            {
+                if(hand[i].CardValue.Value == hand[i+1].CardValue.Value - 1)//checks to see if the next card is the correct order
+                {
+                    currentSet.Add(hand[i]);
+                    i--;
+                }
+                else //the current card is not sequencely correct
+                {
+                    if(currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
+                    {
+                        bestSet = currentSet;
+                    }
+                    currentSet.Clear();
+                }
+            }
+
+            foreach(RefractionCard c in hand)//assigns what card would be discarded
+            {
+                if (!bestSet.Contains(c))//best hand does not contain card
+                {
+                    c.DiscardFromHandWithRank(5);
+                }
+            }
+
+            return GetPossilityForDiscards(5-bestSet.Count); // TODO: based on amount of cards discarded return 
+        }
+
+        private PossibilityLevel CheckForThreeOfAKind(int rank, List<RefractionCard> hand)//Rank 4 //Kenny
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
         }
 
-        private PossibilityLevel CheckForThreeOfAKind(int rank, List<RefractionCard> hand)//Kenny
-        {
-            // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
-            // refractionCard.DiscardFromHandWithRank(rank);
-            return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
-        }
-
-        private PossibilityLevel CheckForTwoPair(int rank, List<RefractionCard> hand)//Kenny
+        private PossibilityLevel CheckForTwoPair(int rank, List<RefractionCard> hand)//Rank 3 //Kenny
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // return possible so this hand is only targeted if nothing better available 
         }
 
-        private PossibilityLevel CheckForPair(int rank, List<RefractionCard> hand)//Kenny
+        private PossibilityLevel CheckForPair(int rank, List<RefractionCard> hand)//Rank 2 //Kenny
         {
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
