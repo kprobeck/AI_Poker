@@ -16,3 +16,6 @@ D:\Poker\PokerTournament v2\PokerTournament\obj\Debug\PokerTournament.pdb
 C:\Users\Noah Parker\Documents\College\Year 3\Spring Semester\AI\AI_Poker\AI_Poker\PokerTournament v2\PokerTournament\bin\Debug\PokerTournament.exe.config
 C:\Users\Noah Parker\Documents\College\Year 3\Spring Semester\AI\AI_Poker\AI_Poker\PokerTournament v2\PokerTournament\obj\Debug\PokerTournament.exe
 C:\Users\Noah Parker\Documents\College\Year 3\Spring Semester\AI\AI_Poker\AI_Poker\PokerTournament v2\PokerTournament\obj\Debug\PokerTournament.pdb
+E:\JUSTIN\RIT 4th Year\Spring Semester\AI\AI_Poker\PokerTournament v2\PokerTournament\bin\Debug\PokerTournament.exe.config
+E:\JUSTIN\RIT 4th Year\Spring Semester\AI\AI_Poker\PokerTournament v2\PokerTournament\obj\Debug\PokerTournament.exe
+E:\JUSTIN\RIT 4th Year\Spring Semester\AI\AI_Poker\PokerTournament v2\PokerTournament\obj\Debug\PokerTournament.pdb

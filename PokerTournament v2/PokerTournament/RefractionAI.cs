@@ -106,14 +106,47 @@ namespace PokerTournament
 
         public override PlayerAction Draw(Card[] hand) // TODO: JHAT
         {
-            // TODO: Card values to be discarded for target hand
+            List<Card> discards = new List<Card>();
 
-            // TODO: get index of card for deletion
+            // get card values to be discarded for target hand
+            foreach (RefractionCard card in refHand)
+            {
+                if (card.HandsThatWouldDiscard.Contains(targetHandRank))
+                {
+                    discards.Add(card.CardValue);
+                }
+            }
 
-            // TODO: handle cases of discard all and discard none
+            if (discards.Count == 5) // check if deleting all or none
+            {
+                // delete them all
+                for (int i = 0; i < hand.Length; i++)
+                {
+                    hand[i] = null;
+                }
+                return new PlayerAction(Name, "Draw", "draw", 5);
+            }
+            else if (discards.Count < 1) // no cards deleted
+            {
+                return new PlayerAction(Name, "Draw", "stand pat", 0);
+            }
 
-            // TODO: return PlayerAction object
-            return new PlayerAction(Name, "Draw", "draw", 0);
+            int cardsToDelete = discards.Count;
+
+            // remove card(s) from hand
+            for (int i = 0; i < hand.Length; i++)
+            {
+                Card current = hand[i];
+
+                if (discards.Count > 0 && discards.Contains(current)) // if card is marked for discard
+                {
+                    hand[i] = null; // delete card from hand
+                    discards.Remove(current); // remove current to speed up future searches
+                }
+            }
+
+            // return PlayerAction object
+            return new PlayerAction(Name, "Draw", "draw", cardsToDelete);
         }
 
         private int GetTotalDiscardsForHandRank(int rank)
@@ -171,7 +204,7 @@ namespace PokerTournament
 
         private PossibilityLevel CheckForRoyalFlush(int rank, List<RefractionCard> hand)//Rank 10 //Noah
         {
-            // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
+            // logic that would mark refraction cards for discard in order to possibly get this hand
             List<RefractionCard> bestSet = new List<RefractionCard>();
             List<RefractionCard> currentSet = new List<RefractionCard>();
             string[] suits = { "Hearts", "Clubs", "Diamonds", "Spades" };
@@ -210,17 +243,16 @@ namespace PokerTournament
             {
                 if (!bestSet.Contains(c))//best hand does not contain card
                 {
-                    c.DiscardFromHandWithRank(10);
+                    c.DiscardFromHandWithRank(rank);
                 }
             }
 
-            return GetPossilityForDiscards(5 - bestSet.Count); // TODO: based on amount of cards discarded return 
+            return GetPossilityForDiscards(5 - bestSet.Count); // based on amount of cards discarded return 
         }
 
         private PossibilityLevel CheckForStraightFlush(int rank, List<RefractionCard> hand)//Rank 9 //Noah
         {
-            // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
-            // refractionCard.DiscardFromHandWithRank(rank);
+            // logic that would mark refraction cards for discard in order to possibly get this hand
             List<RefractionCard> bestSet = new List<RefractionCard>();
             List<RefractionCard> currentSet = new List<RefractionCard>();
             for (int i = 4; i >= 0; i--)
@@ -252,11 +284,11 @@ namespace PokerTournament
             {
                 if (!bestSet.Contains(c))//best hand does not contain card
                 {
-                    c.DiscardFromHandWithRank(9);
+                    c.DiscardFromHandWithRank(rank);
                 }
             }
 
-            return GetPossilityForDiscards(5 - bestSet.Count); // TODO: based on amount of cards discarded return 
+            return GetPossilityForDiscards(5 - bestSet.Count); // based on amount of cards discarded return 
         }
 
         private PossibilityLevel CheckForFourOfAKind(int rank, List<RefractionCard> hand)//Rank 8 //Kenny
@@ -275,8 +307,7 @@ namespace PokerTournament
 
         private PossibilityLevel CheckForFlush(int rank, List<RefractionCard> hand)//Rank 6 //Noah
         {
-            // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
-            // refractionCard.DiscardFromHandWithRank(rank);
+            // logic that would mark refraction cards for discard in order to possibly get this hand
             List<RefractionCard> bestSet = new List<RefractionCard>();
             List<RefractionCard> currentSet = new List<RefractionCard>();
             string[] suits = { "Hearts", "Clubs", "Diamonds", "Spades" };
@@ -307,17 +338,16 @@ namespace PokerTournament
             {
                 if (!bestSet.Contains(c))//best hand does not contain card
                 {
-                    c.DiscardFromHandWithRank(6);
+                    c.DiscardFromHandWithRank(rank);
                 }
             }
 
-            return GetPossilityForDiscards(5 - bestSet.Count); // TODO: based on amount of cards discarded return 
+            return GetPossilityForDiscards(5 - bestSet.Count); // based on amount of cards discarded return 
         }
 
         private PossibilityLevel CheckForStraight(int rank, List<RefractionCard> hand)//Rank 5 //Noah
         {
-            // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
-            // refractionCard.DiscardFromHandWithRank(rank);
+            // logic that would mark refraction cards for discard in order to possibly get this hand
             List<RefractionCard> bestSet = new List<RefractionCard>();
             List<RefractionCard> currentSet = new List<RefractionCard>();
             for (int i = 4; i >= 0; i--) {//goes through all 5 cards
@@ -341,11 +371,11 @@ namespace PokerTournament
             {
                 if (!bestSet.Contains(c))//best hand does not contain card
                 {
-                    c.DiscardFromHandWithRank(5);
+                    c.DiscardFromHandWithRank(rank);
                 }
             }
 
-            return GetPossilityForDiscards(5-bestSet.Count); // TODO: based on amount of cards discarded return 
+            return GetPossilityForDiscards(5-bestSet.Count); // based on amount of cards discarded return 
         }
 
         private PossibilityLevel CheckForThreeOfAKind(int rank, List<RefractionCard> hand)//Rank 4 //Kenny
@@ -390,7 +420,7 @@ namespace PokerTournament
             }
         }
 
-        private static void SortHand(List<RefractionCard> hand)
+        private void SortHand(List<RefractionCard> hand)
         {
             // simple bubble sort - with 5 cards almost as fast as other
             // types of sorts
@@ -415,7 +445,7 @@ namespace PokerTournament
 
         // helper method - see if hand is all the same suit
         // could mean a Flush, Straight Flush, or Royal Flush
-        private static Boolean SameSuit(List<RefractionCard> hand)
+        private Boolean SameSuit(List<RefractionCard> hand)
         {
             // are all cards from the same suit
             for (int i = 1; i < hand.Count; i++)
