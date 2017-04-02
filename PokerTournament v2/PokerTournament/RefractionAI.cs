@@ -293,6 +293,25 @@ namespace PokerTournament
 
         private PossibilityLevel CheckForFourOfAKind(int rank, List<RefractionCard> hand)//Rank 8 //Kenny
         {
+            // logic that would mark refraction cards for discard in order to possibly get this hand
+            List<RefractionCard> bestSet = new List<RefractionCard>();
+            List<RefractionCard> currentSet = new List<RefractionCard>();
+            for (int i = 4; i >= 0; i--) // go through each card and comapre to every other card
+            {
+                if (bestSet.Count >= 4) { break; } // no better set than 4
+                for (int y = i - 1; y >= 0; y--)
+                {
+                    if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place in current set
+                    {
+                        currentSet.Add(hand[i]);
+                        currentSet.Add(hand[y]);
+                    }
+
+
+                }
+
+            }
+
             // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
             // refractionCard.DiscardFromHandWithRank(rank);
             return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
