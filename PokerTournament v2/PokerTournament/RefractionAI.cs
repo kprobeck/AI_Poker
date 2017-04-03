@@ -263,14 +263,14 @@ namespace PokerTournament
                 {
                     if (hand[y].CardValue.Value > currentSet[0].CardValue.Value - 5 && hand[y].CardValue.Suit == currentSet[0].CardValue.Suit)//check if card is within range and the same suit
                     {
-                        currentSet.Add(hand[i]);
+                        currentSet.Add(hand[y]);
                     }
                 }
                 if (currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
                 {
                     bestSet = currentSet;
                 }
-                else if (currentSet.Count == bestSet.Count)//there are the same amount of cards in this list, compare highest card
+                else if (currentSet.Count == bestSet.Count)// there are the same amount of cards in this list, compare highest card
                 {
                     if (currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)
                     {
@@ -301,27 +301,130 @@ namespace PokerTournament
                 if (bestSet.Count >= 4) { break; } // no better set than 4
                 for (int y = i - 1; y >= 0; y--)
                 {
-                    if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place in current set
+                    if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
                     {
-                        currentSet.Add(hand[i]);
-                        currentSet.Add(hand[y]);
+                        if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
+                        {
+                            currentSet.Add(hand[i]);
+                        }
+
+                        if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
+                        {
+                            currentSet.Add(hand[y]);
+                        }
                     }
-
-
                 }
 
+                if (currentSet.Count > bestSet.Count) // there are more cards in this set then in previous best set
+                {
+                    bestSet = currentSet;
+                }
+                else if (currentSet.Count == bestSet.Count) // there are the same amount of cards in this list, compare highest card
+                {
+                    if (currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)
+                    {
+                        bestSet = currentSet;
+                    }
+                }
+                // clear current list and go to
+                currentSet.Clear();
             }
 
-            // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
-            // refractionCard.DiscardFromHandWithRank(rank);
-            return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
+            foreach (RefractionCard c in hand)//assigns what card would be discarded
+            {
+                if (!bestSet.Contains(c)) // best hand does not contain card
+                {
+                    c.DiscardFromHandWithRank(rank);
+                }
+            }
+
+            return GetPossilityForDiscards(5 - bestSet.Count); // based on amount of cards discarded return 
         }
 
         private PossibilityLevel CheckForFullHouse(int rank, List<RefractionCard> hand)//Rank 7 //Kenny
         {
-            // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
-            // refractionCard.DiscardFromHandWithRank(rank);
-            return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
+            /// logic that would mark refraction cards for discard in order to possibly get this hand
+            List<RefractionCard> bestSet1 = new List<RefractionCard>();
+            List<RefractionCard> bestSet2 = new List<RefractionCard>();
+            List<RefractionCard> currentSet = new List<RefractionCard>();
+            for (int i = 4; i >= 0; i--) // go through each card and comapre to every other card
+            {
+                if ((bestSet1.Count >= 3 && bestSet2.Count >= 2) || (bestSet1.Count >= 2 && bestSet2.Count >= 3)) { break; } // no better set than 4
+                for (int y = i - 1; y >= 0; y--)
+                {
+                    if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
+                    {
+                        if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
+                        {
+                            currentSet.Add(hand[i]);
+                        }
+
+                        if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
+                        {
+                            currentSet.Add(hand[y]);
+                        }
+                    }
+                }
+
+                if ((currentSet.Count > bestSet2.Count) || (currentSet.Count > bestSet1.Count)) // there are more cards in this set then either previous best set
+                {
+                    // if nothing filled, fill the bottom
+                    if (bestSet1.Count == 0 && bestSet2.Count == 0) { bestSet2 = currentSet; }
+
+                    // put it in the top "best" if the bottom is filled
+                    else if (bestSet1.Count == 0 && bestSet2.Count != 0) { bestSet1 = currentSet; }
+
+                    // if both are filled...
+                    else if (bestSet1.Count != 0 && bestSet2.Count != 0)
+                    {
+                        // see which "best" set is smaller, check to see if current is larger than it
+                            // bottom best is larger, try to put in top
+                        if (bestSet1.Count < bestSet2.Count)
+                        {
+                            if (currentSet.Count > bestSet1.Count) { bestSet1 = currentSet; }
+                        }
+
+                            //top best is larger, try to put in bottom
+                        if (bestSet1.Count > bestSet2.Count)
+                        {
+                            if (currentSet.Count > bestSet2.Count) { bestSet2 = currentSet; }
+                        }
+                    }
+                    
+                }
+
+                else if (currentSet.Count == bestSet1.Count && currentSet.Count == bestSet2.Count) // there are the same amount of cards in both lists, compare highest card
+                {
+                    // bottom has lower value, place here
+                    if (bestSet1[0].CardValue.Value > bestSet2[0].CardValue.Value)
+                    {
+                        if (currentSet[0].CardValue.Value > bestSet2[0].CardValue.Value) { bestSet2 = currentSet; }
+                    }
+
+                    // top has lower value, place here
+                    if (bestSet1[0].CardValue.Value < bestSet2[0].CardValue.Value)
+                    {
+                        if (currentSet[0].CardValue.Value > bestSet1[0].CardValue.Value) { bestSet1 = currentSet; }
+                    }
+                }
+                // clear current list and go to
+                currentSet.Clear();
+            }
+
+            foreach (RefractionCard c in hand)//assigns what card would be discarded
+            {
+                if (!bestSet1.Contains(c)) // best hand does not contain card
+                {
+                    c.DiscardFromHandWithRank(rank);
+                }
+
+                if (!bestSet2.Contains(c)) // best hand does not contain card
+                {
+                    c.DiscardFromHandWithRank(rank);
+                }
+            }
+
+            return GetPossilityForDiscards(5 - bestSet1.Count - bestSet2.Count); // based on amount of cards discarded return  
         }
 
         private PossibilityLevel CheckForFlush(int rank, List<RefractionCard> hand)//Rank 6 //Noah
@@ -376,7 +479,7 @@ namespace PokerTournament
                 {
                     if (hand[y].CardValue.Value > currentSet[0].CardValue.Value - 5 && hand[y].CardValue.Value != hand[y+1].CardValue.Value)//check if card is within range and not a duplicate value
                     {
-                        currentSet.Add(hand[i]);
+                        currentSet.Add(hand[y]);
                     }
                 }
                 if (currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
@@ -399,23 +502,188 @@ namespace PokerTournament
 
         private PossibilityLevel CheckForThreeOfAKind(int rank, List<RefractionCard> hand)//Rank 4 //Kenny
         {
-            // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
-            // refractionCard.DiscardFromHandWithRank(rank);
-            return PossibilityLevel.Possible; // TODO: based on amount of cards discarded return 
+            // logic that would mark refraction cards for discard in order to possibly get this hand
+            List<RefractionCard> bestSet = new List<RefractionCard>();
+            List<RefractionCard> currentSet = new List<RefractionCard>();
+            for (int i = 4; i >= 0; i--) // go through each card and comapre to every other card
+            {
+                if (bestSet.Count >= 3) { break; } // no better set than 4
+                for (int y = i - 1; y >= 0; y--)
+                {
+                    if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
+                    {
+                        if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
+                        {
+                            currentSet.Add(hand[i]);
+                        }
+
+                        if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
+                        {
+                            currentSet.Add(hand[y]);
+                        }
+                    }
+                }
+
+                if (currentSet.Count > bestSet.Count) // there are more cards in this set then in previous best set
+                {
+                    bestSet = currentSet;
+                }
+                else if (currentSet.Count == bestSet.Count) // there are the same amount of cards in this list, compare highest card
+                {
+                    if (currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)
+                    {
+                        bestSet = currentSet;
+                    }
+                }
+                // clear current list and go to
+                currentSet.Clear();
+            }
+
+            foreach (RefractionCard c in hand)//assigns what card would be discarded
+            {
+                if (!bestSet.Contains(c)) // best hand does not contain card
+                {
+                    c.DiscardFromHandWithRank(rank);
+                }
+            }
+
+            return GetPossilityForDiscards(5 - bestSet.Count); // based on amount of cards discarded return 
         }
 
         private PossibilityLevel CheckForTwoPair(int rank, List<RefractionCard> hand)//Rank 3 //Kenny
         {
-            // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
-            // refractionCard.DiscardFromHandWithRank(rank);
-            return PossibilityLevel.Possible; // return possible so this hand is only targeted if nothing better available 
+            /// logic that would mark refraction cards for discard in order to possibly get this hand
+            List<RefractionCard> bestSet1 = new List<RefractionCard>();
+            List<RefractionCard> bestSet2 = new List<RefractionCard>();
+            List<RefractionCard> currentSet = new List<RefractionCard>();
+            for (int i = 4; i >= 0; i--) // go through each card and comapre to every other card
+            {
+                if (bestSet1.Count >= 2 && bestSet2.Count >= 2) { break; } // no better set than 4
+                for (int y = i - 1; y >= 0; y--)
+                {
+                    if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
+                    {
+                        if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
+                        {
+                            currentSet.Add(hand[i]);
+                        }
+
+                        if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
+                        {
+                            currentSet.Add(hand[y]);
+                        }
+                    }
+                }
+
+                if ((currentSet.Count > bestSet2.Count) || (currentSet.Count > bestSet1.Count)) // there are more cards in this set then either previous best set
+                {
+                    // if nothing filled, fill the bottom
+                    if (bestSet1.Count == 0 && bestSet2.Count == 0) { bestSet2 = currentSet; }
+
+                    // put it in the top "best" if the bottom is filled
+                    else if (bestSet1.Count == 0 && bestSet2.Count != 0) { bestSet1 = currentSet; }
+
+                    // if both are filled...
+                    else if (bestSet1.Count != 0 && bestSet2.Count != 0)
+                    {
+                        // see which "best" set is smaller, check to see if current is larger than it
+                        // bottom best is larger, try to put in top
+                        if (bestSet1.Count < bestSet2.Count)
+                        {
+                            if (currentSet.Count > bestSet1.Count) { bestSet1 = currentSet; }
+                        }
+
+                        //top best is larger, try to put in bottom
+                        if (bestSet1.Count > bestSet2.Count)
+                        {
+                            if (currentSet.Count > bestSet2.Count) { bestSet2 = currentSet; }
+                        }
+                    }
+
+                }
+
+                else if (currentSet.Count == bestSet1.Count && currentSet.Count == bestSet2.Count) // there are the same amount of cards in both lists, compare highest card
+                {
+                    // bottom has lower value, place here
+                    if (bestSet1[0].CardValue.Value > bestSet2[0].CardValue.Value)
+                    {
+                        if (currentSet[0].CardValue.Value > bestSet2[0].CardValue.Value) { bestSet2 = currentSet; }
+                    }
+
+                    // top has lower value, place here
+                    if (bestSet1[0].CardValue.Value < bestSet2[0].CardValue.Value)
+                    {
+                        if (currentSet[0].CardValue.Value > bestSet1[0].CardValue.Value) { bestSet1 = currentSet; }
+                    }
+                }
+                // clear current list and go to
+                currentSet.Clear();
+            }
+
+            foreach (RefractionCard c in hand)//assigns what card would be discarded
+            {
+                if (!bestSet1.Contains(c)) // best hand does not contain card
+                {
+                    c.DiscardFromHandWithRank(rank);
+                }
+
+                if (!bestSet2.Contains(c)) // best hand does not contain card
+                {
+                    c.DiscardFromHandWithRank(rank);
+                }
+            }
+
+            return GetPossilityForDiscards(5 - bestSet1.Count - bestSet2.Count); // based on amount of cards discarded return 
         }
 
         private PossibilityLevel CheckForPair(int rank, List<RefractionCard> hand)//Rank 2 //Kenny
         {
-            // TODO: add logic that would mark refraction cards for discard in order to possibly get this hand
-            // refractionCard.DiscardFromHandWithRank(rank);
-            return PossibilityLevel.Possible; // return possible so this hand is only targeted if nothing better available 
+            // logic that would mark refraction cards for discard in order to possibly get this hand
+            List<RefractionCard> bestSet = new List<RefractionCard>();
+            List<RefractionCard> currentSet = new List<RefractionCard>();
+            for (int i = 4; i >= 0; i--) // go through each card and comapre to every other card
+            {
+                if (bestSet.Count >= 2) { break; } // no better set than 4
+                for (int y = i - 1; y >= 0; y--)
+                {
+                    if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
+                    {
+                        if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
+                        {
+                            currentSet.Add(hand[i]);
+                        }
+
+                        if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
+                        {
+                            currentSet.Add(hand[y]);
+                        }
+                    }
+                }
+
+                if (currentSet.Count > bestSet.Count) // there are more cards in this set then in previous best set
+                {
+                    bestSet = currentSet;
+                }
+                else if (currentSet.Count == bestSet.Count) // there are the same amount of cards in this list, compare highest card
+                {
+                    if (currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)
+                    {
+                        bestSet = currentSet;
+                    }
+                }
+                // clear current list and go to
+                currentSet.Clear();
+            }
+
+            foreach (RefractionCard c in hand)//assigns what card would be discarded
+            {
+                if (!bestSet.Contains(c)) // best hand does not contain card
+                {
+                    c.DiscardFromHandWithRank(rank);
+                }
+            }
+
+            return GetPossilityForDiscards(5 - bestSet.Count); // based on amount of cards discarded return 
         }
 
         private PossibilityLevel GetPossilityForDiscards(int numDiscarded)
