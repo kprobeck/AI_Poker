@@ -105,12 +105,19 @@ namespace PokerTournament
             // get total amount of discards
             int discardingTotal = GetTotalDiscardsForHandRank(targetHandRank);
 
+            //Discard cards
+
+
             // TODO: Determine bet/bluff action -- KPAR, NPRO
+            currentRank = Evaluate.RateAHand(hand, out highCard);
+            Boolean bluffing = false;
             // look at the action queue from Game
             //function(int and stuff)
 
-            // TODO: return appropriate PlayerAction object
-            return new PlayerAction(Name, "Bet1", "bet", 0);
+            // return appropriate PlayerAction object
+            int amountPlaced = 0;
+            string actionTaken = determinePlayerAction(currentRank, bluffing, out amountPlaced);//the player action that will be taken for this turn
+            return new PlayerAction(Name, "Bet1", actionTaken, amountPlaced);
         }
 
         public override PlayerAction BettingRound2(List<PlayerAction> actions, Card[] hand)
@@ -782,19 +789,19 @@ namespace PokerTournament
             switch (rank)
             {
                 case 2: //pair
-                    return 4;
+                    return 16;
                 case 3: //two pair
-                    return 8;
+                    return 12;
                 case 4: //Three of a Kind
-                    return 4;
-                case 5: //Straight
-                    return 5;
+                    return 12;
+                case 5: //Straight //could use some work
+                    return 10;
                 case 6: //Flush
                     return 14;
                 case 7: //Full House
                     return 8;
                 case 8: //Four of a Kind
-                    return 4;
+                    return 8;
                 case 9: //Straight Flush
                     return 5;
                 case 10: //Royal Flush
@@ -802,6 +809,71 @@ namespace PokerTournament
                 default:
                     return 0;
             }
+        }
+
+        //figures out what player action should be done based on hand strength
+        private string determinePlayerAction(int handRank, Boolean bluffing, out int betAmount)
+        {
+            betAmount = 0;
+            int choice = 0;
+            //determine choice
+
+            //action based on if bluffing or not
+            if (!bluffing)//not bluffing
+            {
+                switch (choice)
+                {
+                    case 1:
+                        betAmount = determineBet(handRank, bluffing, 0);
+                        return "bet";
+                    case 2:
+                        betAmount = determineBet(handRank, bluffing, 0);
+                        return "raise";
+                    case 3:
+                        betAmount = 0;
+                        return "check";
+                    case 4:
+                        betAmount = 0;
+                        return "call";
+                    default:
+                        betAmount = 0;
+                        return "fold";
+                }
+            }
+            else//bluffing
+            {
+                switch (choice)
+                {
+                    case 1:
+                        betAmount = 0;
+                        return "check";
+                    case 2:
+                        betAmount = 0;
+                        return "call";
+                    case 3:
+                        betAmount = determineBet(handRank, bluffing, 0);
+                        return "bet";
+                    case 4:
+                        betAmount = determineBet(handRank, bluffing, 0);
+                        return "raise";
+                    default://should never be doing this
+                        betAmount = 0;
+                        return "fold";
+                }
+            }
+        }
+
+        private int determineBet(int handRank, Boolean bluffing, int raiseAmount)//determine the amount that needs that would be bet
+        {
+            if (bluffing)
+            {
+
+            }
+            else
+            {
+
+            }
+            return 1;
         }
 
         class RefractionCard // inner class to add property to each card to determine what hands would require it to be discarded
