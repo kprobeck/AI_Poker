@@ -112,9 +112,8 @@ namespace PokerTournament
 
             // TODO: Determine bet/bluff action -- KPAR, NPRO
             currentRank = Evaluate.RateAHand(hand, out highCard);
-            Boolean bluffing = false;
+            Boolean bluffing = determineBluff();
             // look at the action queue from Game
-            //function(int and stuff)
 
             // return appropriate PlayerAction object
             int amountPlaced = 0;
@@ -131,11 +130,14 @@ namespace PokerTournament
             Card highCard = null;
             int finalRank = Evaluate.RateAHand(hand, out highCard); // final hand rank
 
-            // TODO: determine bet/bluff action based on rank  -- KPAR, NPRO
-            //function(int and stuff)
+            // TODO: Determine bet/bluff action -- KPAR, NPRO
+            Boolean bluffing = determineBluff();
+            // look at the action queue from Game
 
-            // TODO: run modified evaluation and return PlayerAction object
-            return new PlayerAction(Name, "Bet1", "bet", 0);
+            // return appropriate PlayerAction object
+            int amountPlaced = 0;
+            string actionTaken = determinePlayerAction(finalRank, bluffing, out amountPlaced);//the player action that will be taken for this turn
+            return new PlayerAction(Name, "Bet1", actionTaken, amountPlaced);
         }
 
         public override PlayerAction Draw(Card[] hand) // TODO: JHAT
@@ -818,7 +820,19 @@ namespace PokerTournament
         {
             betAmount = 0;
             int choice = 0;
-            //determine choice
+            //TODO: determine choice, implement look at opponent bet
+            //if enemy bet anything
+
+            //did not bet
+            //1 or 3 or fold
+            if (handRank < 6) //bet
+            {
+                choice = 1;
+            }
+            else if (handRank <= 10) //check
+            {
+                choice = 3;
+            }
 
             //action based on if bluffing or not
             if (!bluffing)//not bluffing
@@ -867,20 +881,53 @@ namespace PokerTournament
 
         private int determineBet(int handRank, Boolean bluffing, int raiseAmount)//determine the amount that needs that would be bet
         {
-            if (bluffing)
+            double percent = (rnd.NextDouble() * .4)-.2;
+            if (!bluffing)//not bluffing
             {
-
+                switch (handRank)
+                {
+                    case 5:
+                        return (int)((.3 + percent) * Money);
+                    case 6:
+                        return (int)((.4 + percent) * Money);
+                    case 7:
+                        return (int)((.5 + percent) * Money);
+                    case 8:
+                        return (int)((.5 + percent) * Money);
+                    case 9:
+                        return (int)((.6 + percent) * Money);
+                    case 10:
+                        return (int)((.6 + percent) * Money);
+                    default:
+                        return 1;
+                }
             }
-            else
+            else//bluffing
             {
-
+                switch (handRank)
+                {
+                    case 2:
+                        return (int)((.6 + percent) * Money);
+                    case 3:
+                        return (int)((.6 + percent) * Money);
+                    case 4:
+                        return (int)((.5 + percent) * Money);
+                    case 5:
+                        return (int)((.5 + percent) * Money);
+                    case 6:
+                        return (int)((.4 + percent) * Money);
+                    case 7:
+                        return (int)((.3 + percent) * Money);
+                    default:
+                        return 1;
+                }
             }
-            return 1;
         }
 
         // function to determine if the AI should bluff or not- based on targetHandRank and a random number
         private bool determineBluff()
         {
+            //TODO adjust this more
             // have low, bluff for high
             int chanceLow = rnd.Next(5, 11);
             if (chanceLow + (targetHandRank * 10) <= 30) { return true; }
