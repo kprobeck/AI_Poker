@@ -15,12 +15,14 @@ namespace PokerTournament
         List<RefractionCard> refHand;
         List<int> rankOfTargetHands;
         int targetHandRank;
+        Random rnd;
 
         // construct object with super class variables
         public RefractionAI(int playerId, string playerName, int totalMoney) : base(playerId, playerName, totalMoney)
         {
             refHand = new List<RefractionCard>();
             rankOfTargetHands = new List<int>();
+            rnd = new Random();
         }
 
         public override PlayerAction BettingRound1(List<PlayerAction> actions, Card[] hand)
@@ -874,6 +876,20 @@ namespace PokerTournament
 
             }
             return 1;
+        }
+
+        // function to determine if the AI should bluff or not- based on targetHandRank and a random number
+        private bool determineBluff()
+        {
+            // have low, bluff for high
+            int chanceLow = rnd.Next(5, 11);
+            if (chanceLow + (targetHandRank * 10) <= 30) { return true; }
+
+            // have high, bluff for low
+            int chanceHigh = rnd.Next(5, 11);
+            if (chanceHigh + (targetHandRank * 10) > 70) { return true; }
+
+            return false;
         }
 
         class RefractionCard // inner class to add property to each card to determine what hands would require it to be discarded
