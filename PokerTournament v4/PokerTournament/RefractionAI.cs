@@ -51,30 +51,55 @@ namespace PokerTournament
                 {
                     rankOfTargetHands.Clear(); // clear old bests
                     bestChance = currentChance; // overwrite best
-                    rankOfTargetHands.Add((int)bestChance); // add new best
+                    rankOfTargetHands.Add(i); // add new best hand by their rank
                 }
                 else if (currentChance == bestChance) // if equally as good
                 {
-                    rankOfTargetHands.Add((int)currentChance); // add both target ranks
+                    rankOfTargetHands.Add(i); // add both target ranks
                 }
             }
 
             // loop through target hand indices determine which is most likely 
             if (rankOfTargetHands.Count > 1)
             {
+                var evaluateNumBest = -1; //best hand to have a chance of drawing
                 foreach (int targetRank in rankOfTargetHands) // resolve conflict
                 {
-                    // TODO: determine which rank is more likely -- NPAR
+                    // determine which rank is more likely -- NPAR
                     // determine based on pot size/money total
-                    //Function needed
+                    int evaluateNum = targetRank;// how likely this hand is to draw
+                    int numOfCard = ChanceOfCardsNeeded(targetRank);//number of possible cards that could be drawn to get hand
+                    for (int i = 0; i < (int)bestChance; i++)//number that will be thrown away
+                    {
+                        if (numOfCard - i <= 0)//add extra chances for drawing correct card
+                        {
+                            evaluateNum *= numOfCard;
+                        }
+                        else {//have to draw correct cards
+                            evaluateNum *= (numOfCard - i);
+                        }
+                    }
 
                     // assign target rank
-                    //targetHandRank = targetRank;
+                    if(evaluateNum > evaluateNumBest)//there is a better chance of getting this hand
+                    {
+                        targetHandRank = targetRank;
+                        evaluateNumBest = evaluateNum;
+                    }
+                    else if(evaluateNum == evaluateNumBest && targetRank > targetHandRank)//same chance of happening and targetRank is better than target hand
+                    {
+                        targetHandRank = targetRank;
+                    }
+
                 }
             }
-            else
+            else if(rankOfTargetHands.Count == 1)//only one in array, have to go for that one
             {
                 targetHandRank = rankOfTargetHands[0];
+            }
+            else//catch all
+            {
+                targetHandRank = 0;
             }
 
             // get total amount of discards
@@ -151,6 +176,10 @@ namespace PokerTournament
 
         private int GetTotalDiscardsForHandRank(int rank)
         {
+            if (rank <= 0)//for some reason no good rank
+            {
+                return 4;
+            }
             int discards = 0;
             foreach (RefractionCard card in refHand) // loop through inner class hand
             {
@@ -745,6 +774,34 @@ namespace PokerTournament
 
             // finished loop - all cards are the same suit
             return true;
+        }
+
+        // the Number of cards in the deck that could be used for that hand
+        private int ChanceOfCardsNeeded(int rank)
+        {
+            switch (rank)
+            {
+                case 2: //pair
+                    return 4;
+                case 3: //two pair
+                    return 8;
+                case 4: //Three of a Kind
+                    return 4;
+                case 5: //Straight
+                    return 5;
+                case 6: //Flush
+                    return 14;
+                case 7: //Full House
+                    return 8;
+                case 8: //Four of a Kind
+                    return 4;
+                case 9: //Straight Flush
+                    return 5;
+                case 10: //Royal Flush
+                    return 5;
+                default:
+                    return 0;
+            }
         }
 
         class RefractionCard // inner class to add property to each card to determine what hands would require it to be discarded
