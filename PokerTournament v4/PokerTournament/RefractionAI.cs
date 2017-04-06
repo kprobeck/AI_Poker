@@ -339,19 +339,20 @@ namespace PokerTournament
             for (int i = 4; i >= 0; i--) // go through each card and comapre to every other card
             {
                 if (bestSet.Count >= 4) { break; } // no better set than 4
+                currentSet.Add(hand[i]);//you always have 1 piece of the 4 cards
                 for (int y = i - 1; y >= 0; y--)
                 {
                     if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
                     {
-                        if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
-                        {
-                            currentSet.Add(hand[i]);
-                        }
+                        //if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
+                        //{
+                        //    currentSet.Add(hand[i]);
+                        //}
 
-                        if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
-                        {
+                        //if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
+                        //{
                             currentSet.Add(hand[y]);
-                        }
+                        //}
                     }
                 }
 
@@ -389,20 +390,21 @@ namespace PokerTournament
             List<RefractionCard> currentSet = new List<RefractionCard>();
             for (int i = 4; i >= 0; i--) // go through each card and comapre to every other card
             {
-                if ((bestSet1.Count >= 3 && bestSet2.Count >= 2) || (bestSet1.Count >= 2 && bestSet2.Count >= 3)) { break; } // no better set than 4
+                if ((bestSet1.Count >= 3 && bestSet2.Count >= 2) || (bestSet1.Count >= 2 && bestSet2.Count >= 3)) { break; } // no better set than 5
+                currentSet.Add(hand[i]);//you always have one card of the house
                 for (int y = i - 1; y >= 0; y--)
                 {
                     if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
                     {
-                        if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
-                        {
-                            currentSet.Add(hand[i]);
-                        }
+                        //if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
+                        //{
+                        //    currentSet.Add(hand[i]);
+                        //}
 
-                        if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
-                        {
+                        //if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
+                        //{
                             currentSet.Add(hand[y]);
-                        }
+                        //}
                     }
                 }
 
@@ -487,9 +489,9 @@ namespace PokerTournament
                 {
                     bestSet = currentSet;
                 }
-                else if(currentSet.Count == bestSet.Count)//there are the same amount of cards in this list, compare highest card
+                else if(currentSet.Count == bestSet.Count && currentSet.Count != 0)//there are the same amount of cards in this list, and current has cards
                 {
-                    if(currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)
+                    if(currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)// compare highest card,
                     {
                         bestSet = currentSet;
                     }
@@ -547,20 +549,21 @@ namespace PokerTournament
             List<RefractionCard> currentSet = new List<RefractionCard>();
             for (int i = 4; i >= 0; i--) // go through each card and comapre to every other card
             {
-                if (bestSet.Count >= 3) { break; } // no better set than 4
+                if (bestSet.Count >= 3) { break; } // no better set than 3
+                currentSet.Add(hand[i]);//always have a third of the cards needed
                 for (int y = i - 1; y >= 0; y--)
                 {
                     if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
                     {
-                        if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
-                        {
-                            currentSet.Add(hand[i]);
-                        }
+                        //if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
+                        //{
+                        //    currentSet.Add(hand[i]);
+                        //}
 
-                        if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
-                        {
+                        //if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
+                        //{
                             currentSet.Add(hand[y]);
-                        }
+                        //}
                     }
                 }
 
@@ -599,19 +602,21 @@ namespace PokerTournament
             for (int i = 4; i >= 0; i--) // go through each card and comapre to every other card
             {
                 if (bestSet1.Count >= 2 && bestSet2.Count >= 2) { break; } // no better set than 4
+                currentSet.Add(hand[i]);//always have half of the pair
                 for (int y = i - 1; y >= 0; y--)
                 {
                     if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
                     {
-                        if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
-                        {
-                            currentSet.Add(hand[i]);
-                        }
+                        //if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
+                        //{
+                        //    currentSet.Add(hand[i]);
+                        //}
 
-                        if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
-                        {
+                        //if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
+                        //{
                             currentSet.Add(hand[y]);
-                        }
+                        break;
+                        //}
                     }
                 }
 
@@ -684,19 +689,21 @@ namespace PokerTournament
             for (int i = 4; i >= 0; i--) // go through each card and comapre to every other card
             {
                 if (bestSet.Count >= 2) { break; } // no better set than 4
+                currentSet.Add(hand[i]);//always have half of the pair
                 for (int y = i - 1; y >= 0; y--)
                 {
                     if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
                     {
-                        if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
-                        {
-                            currentSet.Add(hand[i]);
-                        }
+                        //if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
+                        //{
+                        //    currentSet.Add(hand[i]);
+                        //}
 
-                        if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
-                        {
+                        //if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
+                        //{
                             currentSet.Add(hand[y]);
-                        }
+                        break;
+                        //}
                     }
                 }
 
