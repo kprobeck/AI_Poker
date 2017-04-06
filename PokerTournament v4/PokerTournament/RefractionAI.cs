@@ -70,36 +70,37 @@ namespace PokerTournament
                     // determine which rank is more likely -- NPAR
                     // determine based on pot size/money total
                     int evaluateNum = targetRank;// how likely this hand is to draw
-                    int numOfCard = ChanceOfCardsNeeded(targetRank);//number of possible cards that could be drawn to get hand
+                    int numOfCard = ChanceOfCardsNeeded(evaluateNum);//number of possible cards that could be drawn to get hand
                     for (int i = 0; i < (int)bestChance; i++)//number that will be thrown away
                     {
                         if (numOfCard - i <= 0)//add extra chances for drawing correct card
                         {
                             evaluateNum *= numOfCard;
                         }
-                        else {//have to draw correct cards
+                        else
+                        {//have to draw correct cards
                             evaluateNum *= (numOfCard - i);
                         }
                     }
 
                     // assign target rank
-                    if(evaluateNum > evaluateNumBest)//there is a better chance of getting this hand
+                    if (evaluateNum > evaluateNumBest)//there is a better chance of getting this hand
                     {
                         targetHandRank = targetRank;
                         evaluateNumBest = evaluateNum;
                     }
-                    else if(evaluateNum == evaluateNumBest && targetRank > targetHandRank)//same chance of happening and targetRank is better than target hand
+                    else if (evaluateNum == evaluateNumBest && targetRank > targetHandRank)//same chance of happening and targetRank is better than target hand
                     {
                         targetHandRank = targetRank;
                     }
 
                 }
             }
-            else if(rankOfTargetHands.Count == 1)//only one in array, have to go for that one
+            else if (rankOfTargetHands.Count == 1)//only one in array, have to go for that one
             {
                 targetHandRank = rankOfTargetHands[0];
             }
-            else//catch all
+            else//catch if list is empty
             {
                 targetHandRank = 0;
             }
@@ -107,17 +108,12 @@ namespace PokerTournament
             // get total amount of discards
             int discardingTotal = GetTotalDiscardsForHandRank(targetHandRank);
 
-            //Discard cards
-
-
-            // TODO: Determine bet/bluff action -- KPAR, NPRO
-            currentRank = Evaluate.RateAHand(hand, out highCard);
+            // Determine bet/bluff action -- KPAR, NPRO
             Boolean bluffing = determineBluff();
-            // look at the action queue from Game
 
             // return appropriate PlayerAction object
             int amountPlaced = 0;
-            string actionTaken = determinePlayerAction(currentRank, bluffing, out amountPlaced);//the player action that will be taken for this turn
+            string actionTaken = determinePlayerAction(currentRank, actions, bluffing, out amountPlaced);//the player action that will be taken for this turn
             return new PlayerAction(Name, "Bet1", actionTaken, amountPlaced);
         }
 
@@ -130,17 +126,16 @@ namespace PokerTournament
             Card highCard = null;
             int finalRank = Evaluate.RateAHand(hand, out highCard); // final hand rank
 
-            // TODO: Determine bet/bluff action -- KPAR, NPRO
+            //  Determine bet/bluff action -- KPAR, NPRO
             Boolean bluffing = determineBluff();
-            // look at the action queue from Game
 
             // return appropriate PlayerAction object
             int amountPlaced = 0;
-            string actionTaken = determinePlayerAction(finalRank, bluffing, out amountPlaced);//the player action that will be taken for this turn
+            string actionTaken = determinePlayerAction(finalRank, actions, bluffing, out amountPlaced);//the player action that will be taken for this turn
             return new PlayerAction(Name, "Bet1", actionTaken, amountPlaced);
         }
 
-        public override PlayerAction Draw(Card[] hand) // TODO: JHAT
+        public override PlayerAction Draw(Card[] hand) // JHAT
         {
             List<Card> discards = new List<Card>();
 
@@ -178,6 +173,10 @@ namespace PokerTournament
                 {
                     hand[i] = null; // delete card from hand
                     discards.Remove(current); // remove current to speed up future searches
+                }
+                else if (discards.Count < 1)
+                {
+                    break;
                 }
             }
 
@@ -251,7 +250,7 @@ namespace PokerTournament
             foreach (string suit in suits)
             {
                 if (bestSet.Count >= 3) { break; }//no other set can do better then three
-                
+
                 if (hand[0].CardValue.Value == 10 && hand[0].CardValue.Suit == suit)//10
                 {
                     currentSet.Add(hand[0]);
@@ -275,7 +274,7 @@ namespace PokerTournament
 
                 if (currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
                 {
-                    bestSet = currentSet;
+                    bestSet = new List<RefractionCard>(currentSet);
                 }
                 currentSet.Clear();
             }
@@ -308,13 +307,13 @@ namespace PokerTournament
                 }
                 if (currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
                 {
-                    bestSet = currentSet;
+                    bestSet = new List<RefractionCard>(currentSet);
                 }
                 else if (currentSet.Count == bestSet.Count)// there are the same amount of cards in this list, compare highest card
                 {
                     if (currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)
                     {
-                        bestSet = currentSet;
+                        bestSet = new List<RefractionCard>(currentSet);
                     }
                 }
                 currentSet.Clear();
@@ -344,27 +343,19 @@ namespace PokerTournament
                 {
                     if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
                     {
-                        //if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
-                        //{
-                        //    currentSet.Add(hand[i]);
-                        //}
-
-                        //if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
-                        //{
-                            currentSet.Add(hand[y]);
-                        //}
+                        currentSet.Add(hand[y]);
                     }
                 }
 
                 if (currentSet.Count > bestSet.Count) // there are more cards in this set then in previous best set
                 {
-                    bestSet = currentSet;
+                    bestSet = new List<RefractionCard>(currentSet);
                 }
                 else if (currentSet.Count == bestSet.Count) // there are the same amount of cards in this list, compare highest card
                 {
                     if (currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)
                     {
-                        bestSet = currentSet;
+                        bestSet = new List<RefractionCard>(currentSet);
                     }
                 }
                 // clear current list and go to
@@ -396,43 +387,35 @@ namespace PokerTournament
                 {
                     if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
                     {
-                        //if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
-                        //{
-                        //    currentSet.Add(hand[i]);
-                        //}
-
-                        //if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
-                        //{
-                            currentSet.Add(hand[y]);
-                        //}
+                        currentSet.Add(hand[y]);
                     }
                 }
 
                 if ((currentSet.Count > bestSet2.Count) || (currentSet.Count > bestSet1.Count)) // there are more cards in this set then either previous best set
                 {
                     // if nothing filled, fill the bottom
-                    if (bestSet1.Count == 0 && bestSet2.Count == 0) { bestSet2 = currentSet; }
+                    if (bestSet1.Count == 0 && bestSet2.Count == 0) { bestSet2 = new List<RefractionCard>(currentSet); }
 
                     // put it in the top "best" if the bottom is filled
-                    else if (bestSet1.Count == 0 && bestSet2.Count != 0) { bestSet1 = currentSet; }
+                    else if (bestSet1.Count == 0 && bestSet2.Count != 0) { bestSet1 = new List<RefractionCard>(currentSet); }
 
                     // if both are filled...
                     else if (bestSet1.Count != 0 && bestSet2.Count != 0)
                     {
                         // see which "best" set is smaller, check to see if current is larger than it
-                            // bottom best is larger, try to put in top
+                        // bottom best is larger, try to put in top
                         if (bestSet1.Count < bestSet2.Count)
                         {
-                            if (currentSet.Count > bestSet1.Count) { bestSet1 = currentSet; }
+                            if (currentSet.Count > bestSet1.Count) { bestSet1 = new List<RefractionCard>(currentSet); }
                         }
 
-                            //top best is larger, try to put in bottom
+                        //top best is larger, try to put in bottom
                         if (bestSet1.Count > bestSet2.Count)
                         {
-                            if (currentSet.Count > bestSet2.Count) { bestSet2 = currentSet; }
+                            if (currentSet.Count > bestSet2.Count) { bestSet2 = new List<RefractionCard>(currentSet); }
                         }
                     }
-                    
+
                 }
 
                 else if (currentSet.Count == bestSet1.Count && currentSet.Count == bestSet2.Count) // there are the same amount of cards in both lists, compare highest card
@@ -440,13 +423,13 @@ namespace PokerTournament
                     // bottom has lower value, place here
                     if (bestSet1[0].CardValue.Value > bestSet2[0].CardValue.Value)
                     {
-                        if (currentSet[0].CardValue.Value > bestSet2[0].CardValue.Value) { bestSet2 = currentSet; }
+                        if (currentSet[0].CardValue.Value > bestSet2[0].CardValue.Value) { bestSet2 = new List<RefractionCard>(currentSet); }
                     }
 
                     // top has lower value, place here
                     if (bestSet1[0].CardValue.Value < bestSet2[0].CardValue.Value)
                     {
-                        if (currentSet[0].CardValue.Value > bestSet1[0].CardValue.Value) { bestSet1 = currentSet; }
+                        if (currentSet[0].CardValue.Value > bestSet1[0].CardValue.Value) { bestSet1 = new List<RefractionCard>(currentSet); }
                     }
                 }
                 // clear current list and go to
@@ -455,12 +438,7 @@ namespace PokerTournament
 
             foreach (RefractionCard c in hand)//assigns what card would be discarded
             {
-                if (!bestSet1.Contains(c)) // best hand does not contain card
-                {
-                    c.DiscardFromHandWithRank(rank);
-                }
-
-                if (!bestSet2.Contains(c)) // best hand does not contain card
+                if (!bestSet1.Contains(c) && !bestSet2.Contains(c)) // best hand does not contain card
                 {
                     c.DiscardFromHandWithRank(rank);
                 }
@@ -487,13 +465,13 @@ namespace PokerTournament
                 }
                 if (currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
                 {
-                    bestSet = currentSet;
+                    bestSet = new List<RefractionCard>(currentSet);
                 }
-                else if(currentSet.Count == bestSet.Count && currentSet.Count != 0)//there are the same amount of cards in this list, and current has cards
+                else if (currentSet.Count == bestSet.Count && currentSet.Count != 0)//there are the same amount of cards in this list, and current has cards
                 {
-                    if(currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)// compare highest card,
+                    if (currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)// compare highest card,
                     {
-                        bestSet = currentSet;
+                        bestSet = new List<RefractionCard>(currentSet);
                     }
                 }
                 currentSet.Clear();
@@ -514,24 +492,25 @@ namespace PokerTournament
             // logic that would mark refraction cards for discard in order to possibly get this hand
             List<RefractionCard> bestSet = new List<RefractionCard>();
             List<RefractionCard> currentSet = new List<RefractionCard>();
-            for (int i = 4; i >= 0; i--) {//goes through all 5 cards
-                if (bestSet.Count >= i+1) { break; }//no other set can do better than the one that is already the best
+            for (int i = 4; i >= 0; i--)
+            {//goes through all 5 cards
+                if (bestSet.Count >= i + 1) { break; }//no other set can do better than the one that is already the best
                 currentSet.Add(hand[i]);//start off the set
-                for (int y = i-1; y >= 0; y--)//checks each card
+                for (int y = i - 1; y >= 0; y--)//checks each card
                 {
-                    if (hand[y].CardValue.Value > currentSet[0].CardValue.Value - 5 && hand[y].CardValue.Value != hand[y+1].CardValue.Value)//check if card is within range and not a duplicate value
+                    if (hand[y].CardValue.Value > currentSet[0].CardValue.Value - 5 && hand[y].CardValue.Value != hand[y + 1].CardValue.Value)//check if card is within range and not a duplicate value
                     {
                         currentSet.Add(hand[y]);
                     }
                 }
                 if (currentSet.Count > bestSet.Count)//there are more cards in this set then in previous best set
                 {
-                    bestSet = currentSet;
+                    bestSet = new List<RefractionCard>(currentSet);
                 }
                 currentSet.Clear();
             }
 
-            foreach(RefractionCard c in hand)//assigns what card would be discarded
+            foreach (RefractionCard c in hand)//assigns what card would be discarded
             {
                 if (!bestSet.Contains(c))//best hand does not contain card
                 {
@@ -539,7 +518,7 @@ namespace PokerTournament
                 }
             }
 
-            return GetPossilityForDiscards(5-bestSet.Count); // based on amount of cards discarded return 
+            return GetPossilityForDiscards(5 - bestSet.Count); // based on amount of cards discarded return 
         }
 
         private PossibilityLevel CheckForThreeOfAKind(int rank, List<RefractionCard> hand)//Rank 4 //Kenny
@@ -555,27 +534,19 @@ namespace PokerTournament
                 {
                     if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
                     {
-                        //if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
-                        //{
-                        //    currentSet.Add(hand[i]);
-                        //}
-
-                        //if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
-                        //{
-                            currentSet.Add(hand[y]);
-                        //}
+                        currentSet.Add(hand[y]);
                     }
                 }
 
                 if (currentSet.Count > bestSet.Count) // there are more cards in this set then in previous best set
                 {
-                    bestSet = currentSet;
+                    bestSet = new List<RefractionCard>(currentSet);
                 }
                 else if (currentSet.Count == bestSet.Count) // there are the same amount of cards in this list, compare highest card
                 {
                     if (currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)
                     {
-                        bestSet = currentSet;
+                        bestSet = new List<RefractionCard>(currentSet);
                     }
                 }
                 // clear current list and go to
@@ -607,26 +578,18 @@ namespace PokerTournament
                 {
                     if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
                     {
-                        //if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
-                        //{
-                        //    currentSet.Add(hand[i]);
-                        //}
-
-                        //if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
-                        //{
-                            currentSet.Add(hand[y]);
+                        currentSet.Add(hand[y]);
                         break;
-                        //}
                     }
                 }
 
                 if ((currentSet.Count > bestSet2.Count) || (currentSet.Count > bestSet1.Count)) // there are more cards in this set then either previous best set
                 {
                     // if nothing filled, fill the bottom
-                    if (bestSet1.Count == 0 && bestSet2.Count == 0) { bestSet2 = currentSet; }
+                    if (bestSet1.Count == 0 && bestSet2.Count == 0) { bestSet2 = new List<RefractionCard>(currentSet); }
 
                     // put it in the top "best" if the bottom is filled
-                    else if (bestSet1.Count == 0 && bestSet2.Count != 0) { bestSet1 = currentSet; }
+                    else if (bestSet1.Count == 0 && bestSet2.Count != 0) { bestSet1 = new List<RefractionCard>(currentSet); }
 
                     // if both are filled...
                     else if (bestSet1.Count != 0 && bestSet2.Count != 0)
@@ -635,16 +598,15 @@ namespace PokerTournament
                         // bottom best is larger, try to put in top
                         if (bestSet1.Count < bestSet2.Count)
                         {
-                            if (currentSet.Count > bestSet1.Count) { bestSet1 = currentSet; }
+                            if (currentSet.Count > bestSet1.Count) { bestSet1 = new List<RefractionCard>(currentSet); }
                         }
 
                         //top best is larger, try to put in bottom
                         if (bestSet1.Count > bestSet2.Count)
                         {
-                            if (currentSet.Count > bestSet2.Count) { bestSet2 = currentSet; }
+                            if (currentSet.Count > bestSet2.Count) { bestSet2 = new List<RefractionCard>(currentSet); }
                         }
                     }
-
                 }
 
                 else if (currentSet.Count == bestSet1.Count && currentSet.Count == bestSet2.Count) // there are the same amount of cards in both lists, compare highest card
@@ -652,13 +614,13 @@ namespace PokerTournament
                     // bottom has lower value, place here
                     if (bestSet1[0].CardValue.Value > bestSet2[0].CardValue.Value)
                     {
-                        if (currentSet[0].CardValue.Value > bestSet2[0].CardValue.Value) { bestSet2 = currentSet; }
+                        if (currentSet[0].CardValue.Value > bestSet2[0].CardValue.Value) { bestSet2 = new List<RefractionCard>(currentSet); }
                     }
 
                     // top has lower value, place here
                     if (bestSet1[0].CardValue.Value < bestSet2[0].CardValue.Value)
                     {
-                        if (currentSet[0].CardValue.Value > bestSet1[0].CardValue.Value) { bestSet1 = currentSet; }
+                        if (currentSet[0].CardValue.Value > bestSet1[0].CardValue.Value) { bestSet1 = new List<RefractionCard>(currentSet); }
                     }
                 }
                 // clear current list and go to
@@ -667,12 +629,7 @@ namespace PokerTournament
 
             foreach (RefractionCard c in hand)//assigns what card would be discarded
             {
-                if (!bestSet1.Contains(c)) // best hand does not contain card
-                {
-                    c.DiscardFromHandWithRank(rank);
-                }
-
-                if (!bestSet2.Contains(c)) // best hand does not contain card
+                if (!bestSet1.Contains(c) && !bestSet2.Contains(c)) // best hand does not contain card
                 {
                     c.DiscardFromHandWithRank(rank);
                 }
@@ -694,28 +651,20 @@ namespace PokerTournament
                 {
                     if (hand[i].CardValue.Value == hand[y].CardValue.Value) // we have a match, place BOTH in current set, if not already there
                     {
-                        //if (!currentSet.Contains(hand[i])) // current set does not contain card, so add it
-                        //{
-                        //    currentSet.Add(hand[i]);
-                        //}
-
-                        //if (!currentSet.Contains(hand[y])) // current set does not contain card, so add it
-                        //{
-                            currentSet.Add(hand[y]);
+                        currentSet.Add(hand[y]);
                         break;
-                        //}
                     }
                 }
 
                 if (currentSet.Count > bestSet.Count) // there are more cards in this set then in previous best set
                 {
-                    bestSet = currentSet;
+                    bestSet = new List<RefractionCard>(currentSet);
                 }
                 else if (currentSet.Count == bestSet.Count) // there are the same amount of cards in this list, compare highest card
                 {
                     if (currentSet[0].CardValue.Value > bestSet[0].CardValue.Value)
                     {
-                        bestSet = currentSet;
+                        bestSet = new List<RefractionCard>(currentSet);
                     }
                 }
                 // clear current list and go to
@@ -823,12 +772,32 @@ namespace PokerTournament
         }
 
         //figures out what player action should be done based on hand strength
-        private string determinePlayerAction(int handRank, Boolean bluffing, out int betAmount)
+        private string determinePlayerAction(int handRank, List<PlayerAction> roundActions, Boolean bluffing, out int betAmount)
         {
-            betAmount = 0;
+            betAmount = determineBet(handRank, bluffing, 0);
             int choice = 0;
-            //TODO: determine choice, implement look at opponent bet
+
+            //TODO: determine choice, implement look at opponent bet if opponent bet first
             //if enemy bet anything
+
+            // get last action in the queue
+            PlayerAction lastAction = roundActions[roundActions.Count - 1];
+
+            if (lastAction.Name != Name) // only evaluate if opponent took last action
+            {
+                switch (lastAction.ActionName)
+                {
+                    case "bet": // look at lastAction.Amount, do logic
+                        break;
+                    case "raise":
+                        break;
+                    case "call":
+                        break;
+                    case "check":
+                        break;
+                }
+
+            }
 
             //did not bet
             //1 or 3 or fold
@@ -842,53 +811,24 @@ namespace PokerTournament
             }
 
             //action based on if bluffing or not
-            if (!bluffing)//not bluffing
+            switch (choice)
             {
-                switch (choice)
-                {
-                    case 1:
-                        betAmount = determineBet(handRank, bluffing, 0);
-                        return "bet";
-                    case 2:
-                        betAmount = determineBet(handRank, bluffing, 0);
-                        return "raise";
-                    case 3:
-                        betAmount = 0;
-                        return "check";
-                    case 4:
-                        betAmount = 0;
-                        return "call";
-                    default:
-                        betAmount = 0;
-                        return "fold";
-                }
-            }
-            else//bluffing
-            {
-                switch (choice)
-                {
-                    case 1:
-                        betAmount = 0;
-                        return "check";
-                    case 2:
-                        betAmount = 0;
-                        return "call";
-                    case 3:
-                        betAmount = determineBet(handRank, bluffing, 0);
-                        return "bet";
-                    case 4:
-                        betAmount = determineBet(handRank, bluffing, 0);
-                        return "raise";
-                    default://should never be doing this
-                        betAmount = 0;
-                        return "fold";
-                }
+                case 1:
+                    return bluffing ? "check" : "bet";
+                case 2:
+                    return bluffing ? "call" : "raise";
+                case 3:
+                    return bluffing ? "bet" : "check";
+                case 4:
+                    return bluffing ? "raise" : "call";
+                default:
+                    return "fold";
             }
         }
 
         private int determineBet(int handRank, Boolean bluffing, int raiseAmount)//determine the amount that needs that would be bet
         {
-            double percent = (rnd.NextDouble() * .4)-.2;
+            double percent = (rnd.NextDouble() * .4) - .2;
             if (!bluffing)//not bluffing
             {
                 switch (handRank)
@@ -934,16 +874,12 @@ namespace PokerTournament
         // function to determine if the AI should bluff or not- based on targetHandRank and a random number
         private bool determineBluff()
         {
-            //TODO adjust this more
-            // have low, bluff for high
-            int chanceLow = rnd.Next(5, 11);
-            if (chanceLow + (targetHandRank * 10) <= 30) { return true; }
+            //TODO adjust this
 
-            // have high, bluff for low
-            int chanceHigh = rnd.Next(5, 11);
-            if (chanceHigh + (targetHandRank * 10) > 70) { return true; }
-
-            return false;
+            // have low, bluff for high or have high, bluff for low
+            int chanceValue = targetHandRank * 10;
+            int chance = rnd.Next(0, chanceValue + 1);
+            return chance + chanceValue >= (chanceValue * 3 / 2);
         }
 
         class RefractionCard // inner class to add property to each card to determine what hands would require it to be discarded
