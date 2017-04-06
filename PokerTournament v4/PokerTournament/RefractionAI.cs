@@ -774,56 +774,72 @@ namespace PokerTournament
         //figures out what player action should be done based on hand strength
         private string determinePlayerAction(int handRank, List<PlayerAction> roundActions, Boolean bluffing, out int betAmount)
         {
-            betAmount = determineBet(handRank, bluffing, 0);
-            int choice = 0;
-
-            //TODO: determine choice, implement look at opponent bet if opponent bet first
-            //if enemy bet anything
+            betAmount = 0;
 
             // get last action in the queue
             PlayerAction lastAction = roundActions[roundActions.Count - 1];
 
+            //look at opponent bet if opponent bet first
+            //if enemy bet anything
             if (lastAction.Name != Name) // only evaluate if opponent took last action
             {
                 switch (lastAction.ActionName)
                 {
                     case "bet": // look at lastAction.Amount, do logic
-                        break;
+                        return determineResponce(lastAction.Amount, handRank, out betAmount);
                     case "raise":
-                        break;
+                        return determineResponce(lastAction.Amount, handRank, out betAmount);
                     case "call":
-                        break;
+                        break; //matched your bet, just continue on like normal
                     case "check":
-                        break;
+                        break; //just continue on like normal
                 }
 
             }
 
+            betAmount = determineBet(handRank, bluffing, 0);
+            //int choice = 0;
+
+            //TODO: determine choice, update determine action that should be taken if first
+
             //did not bet
             //1 or 3 or fold
-            if (handRank < 6) //bet
-            {
-                choice = 1;
-            }
-            else if (handRank <= 10) //check
-            {
-                choice = 3;
-            }
+            //if (handRank < 6) //bet
+            //{
+            //    choice = 1;
+            //}
+            //else if (handRank <= 10) //check
+            //{
+            //    choice = 3;
+            //}
 
-            //action based on if bluffing or not
-            switch (choice)
+            ////action based on if bluffing or not
+            //switch (choice)
+            //{
+            //    case 1:
+            //        return bluffing ? "check" : "bet";
+            //    case 2:
+            //        return bluffing ? "call" : "raise";
+            //    case 3:
+            //        return bluffing ? "bet" : "check";
+            //    case 4:
+            //        return bluffing ? "raise" : "call";
+            //    default:
+            //        return "fold";
+            //}
+
+            int randAmount = rnd.Next(-2, 2);
+
+            //low chance of folding and not bluffing ex. if junk then 1/4 chance of foldering
+            if (handRank + randAmount < 0 && !bluffing)
             {
-                case 1:
-                    return bluffing ? "check" : "bet";
-                case 2:
-                    return bluffing ? "call" : "raise";
-                case 3:
-                    return bluffing ? "bet" : "check";
-                case 4:
-                    return bluffing ? "raise" : "call";
-                default:
-                    return "fold";
+                return "fold";
             }
+            else if (handRank + randAmount >= 5 && Money >= 10)//bet the amount and makes sure we actually have some money to use
+            {
+                return bluffing ? "bet" : "check";
+            }
+            return bluffing ? "check" : "bet";//just match them
         }
 
         private int determineBet(int handRank, Boolean bluffing, int raiseAmount)//determine the amount that needs that would be bet
@@ -880,6 +896,28 @@ namespace PokerTournament
             int chanceValue = targetHandRank * 10;
             int chance = rnd.Next(0, chanceValue + 1);
             return chance + chanceValue >= (chanceValue * 3 / 2);
+        }
+
+        private string determineResponce(int betRaisedAmount, int handRank, out int betAmount)//if other player bets or raises, determine how to respond
+        {
+            betAmount = 0;
+            int randAmount = rnd.Next(-2, 2);
+
+            //if they bet more then player has
+            //low chance of folding ex. if pair then 1/4 chance of foldering
+            if (handRank + randAmount < 1 || betRaisedAmount > Money)
+            {
+                return "fold";
+            }
+            else if (handRank + randAmount >= 9 && Money >= 10)//raise the amount and makes sure we actually have some money to use
+            {
+                do//calculates amount to raise until amount is above 0
+                {
+                    betAmount = (int)(((handRank - 5 + rnd.Next(-2, 2)) / 100) * Money); //when raising the amount will not be much our total amount
+                } while (betAmount <= 0);
+                return "raise";
+            }
+            return "call";//just match them
         }
 
         class RefractionCard // inner class to add property to each card to determine what hands would require it to be discarded
