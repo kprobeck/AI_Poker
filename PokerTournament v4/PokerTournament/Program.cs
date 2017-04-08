@@ -30,7 +30,7 @@ namespace PokerTournament
             // create two players
             Human h0 = new Human(0, "Joe", 1000);
             //Human h1 = new Human(1, "Sue", 1000);
-            RefractionAI h1 = new RefractionAI(1, "bipBot", 1000);
+            Player3 h1 = new Player3(1, "bipBot", 1000);
 
             // create the Game
             Game myGame = new Game(h0, h1);

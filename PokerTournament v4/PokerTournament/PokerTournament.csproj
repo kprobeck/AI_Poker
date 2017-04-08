@@ -52,7 +52,7 @@
     <Compile Include="PlayerAction.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RefractionAI.cs" />
+    <Compile Include="Player3.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

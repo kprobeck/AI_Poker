@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PokerTournament
 {
     // AI player implementation from Hatin, Parker, Probeck
-    class RefractionAI : Player
+    class Player3 : Player
     {
         // enum to determine liklihood of getting a particular hand
         enum PossibilityLevel { Have, Likely, Possible, Unlikely, Poor, Impossible }; // based on amount of cards to discard. if have a hand, discard 0
@@ -18,7 +18,7 @@ namespace PokerTournament
         Random rnd;
 
         // construct object with super class variables
-        public RefractionAI(int playerId, string playerName, int totalMoney) : base(playerId, playerName, totalMoney)
+        public Player3(int playerId, string playerName, int totalMoney) : base(playerId, playerName, totalMoney)
         {
             refHand = new List<RefractionCard>();
             rankOfTargetHands = new List<int>();
