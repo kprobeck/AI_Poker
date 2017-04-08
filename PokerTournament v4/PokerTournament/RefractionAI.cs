@@ -777,7 +777,11 @@ namespace PokerTournament
             betAmount = 0;
 
             // get last action in the queue
-            PlayerAction lastAction = roundActions[roundActions.Count - 1];
+            PlayerAction lastAction = new PlayerAction(Name, "none", "none", 0);
+            if (roundActions.Count != 0)
+            {
+                lastAction = roundActions[roundActions.Count - 1];
+            }
 
             //look at opponent bet if opponent bet first
             //if enemy bet anything
@@ -798,35 +802,8 @@ namespace PokerTournament
             }
 
             betAmount = determineBet(handRank, bluffing, 0);
-            //int choice = 0;
 
-            //TODO: determine choice, update determine action that should be taken if first
-
-            //did not bet
-            //1 or 3 or fold
-            //if (handRank < 6) //bet
-            //{
-            //    choice = 1;
-            //}
-            //else if (handRank <= 10) //check
-            //{
-            //    choice = 3;
-            //}
-
-            ////action based on if bluffing or not
-            //switch (choice)
-            //{
-            //    case 1:
-            //        return bluffing ? "check" : "bet";
-            //    case 2:
-            //        return bluffing ? "call" : "raise";
-            //    case 3:
-            //        return bluffing ? "bet" : "check";
-            //    case 4:
-            //        return bluffing ? "raise" : "call";
-            //    default:
-            //        return "fold";
-            //}
+            //determine choice, update determine action that should be taken if first
 
             int randAmount = rnd.Next(-2, 2);
 
@@ -860,7 +837,7 @@ namespace PokerTournament
                     case 9:
                         return (int)((.6 + percent) * Money);
                     case 10:
-                        return (int)((.6 + percent) * Money);
+                        return (int)((.7 + percent) * Money);
                     default:
                         return 1;
                 }
@@ -870,17 +847,17 @@ namespace PokerTournament
                 switch (handRank)
                 {
                     case 2:
-                        return (int)((.6 + percent) * Money);
-                    case 3:
-                        return (int)((.6 + percent) * Money);
-                    case 4:
-                        return (int)((.5 + percent) * Money);
-                    case 5:
-                        return (int)((.5 + percent) * Money);
-                    case 6:
                         return (int)((.4 + percent) * Money);
-                    case 7:
+                    case 3:
+                        return (int)((.4 + percent) * Money);
+                    case 4:
                         return (int)((.3 + percent) * Money);
+                    case 5:
+                        return (int)((.3 + percent) * Money);
+                    case 6:
+                        return (int)((.2 + percent) * Money);
+                    case 7:
+                        return (int)((.1 + percent) * Money);
                     default:
                         return 1;
                 }
