@@ -808,7 +808,7 @@ namespace PokerTournament
             int randAmount = rnd.Next(-2, 2);
 
             //low chance of folding and not bluffing ex. if junk then 1/4 chance of foldering
-            if (handRank + randAmount < 0 && !bluffing)
+            if (handRank + randAmount <= 0 && !bluffing)
             {
                 return "fold";
             }
