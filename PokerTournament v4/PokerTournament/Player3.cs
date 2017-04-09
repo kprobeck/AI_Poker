@@ -132,7 +132,7 @@ namespace PokerTournament
             // return appropriate PlayerAction object
             int amountPlaced = 0;
             string actionTaken = determinePlayerAction(finalRank, actions, bluffing, out amountPlaced);//the player action that will be taken for this turn
-            return new PlayerAction(Name, "Bet1", actionTaken, amountPlaced);
+            return new PlayerAction(Name, "Bet2", actionTaken, amountPlaced);
         }
 
         public override PlayerAction Draw(Card[] hand) // JHAT
